@@ -1,0 +1,49 @@
+{
+  "name": "cobertura-istanbul-reporter",
+  "version": "1.0.0",
+  "description": "reporter for use with istanbul that generates a cobertura coverage report.  this is needed because of https://github.com/istanbuljs/istanbuljs/pull/571",
+  "author": "Knute Axelson <kaxelson@gmail.com>",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kaxelson/cobertura-istanbul-reporter"
+  },
+  "keywords": [
+    "istanbul",
+    "reports",
+    "cobertura"
+  ],
+  "bugs": {
+    "url": "https://github.com/kaxelson/cobertura-istanbul-reporter/issues"
+  },
+  "homepage": "https://github.com/kaxelson/cobertura-istanbul-reporter",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "nyc --nycrc-path=../../monorepo-per-package-nycrc.json mocha --recursive"
+  },
+  "dependencies": {
+    "html-escaper": "^3.0.3",
+    "istanbul-lib-report": "^3.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "istanbul-lib-coverage": "^3.0.0",
+    "mocha": "^9.0.0",
+    "fast-xml-parser": "^3.19.0",
+    "nyc": "^15.1.0"
+  },
+  "nyc": {
+    "exclude": [
+      "lib/html/assets/**",
+      "lib/html-spa/assets/**",
+      "lib/html-spa/rollup.config.js",
+      "test/**"
+    ]
+  },
+  "engines": {
+    "node": ">=8"
+  }
+}
