@@ -41,4 +41,32 @@ describe('TextReport', () => {
             }
         }
     );
+
+    it('merged-maps', function () {
+        const coverageMap = istanbulLibCoverage.createCoverageMap({})
+        fs.readdirSync(path.resolve(__dirname, './fixtures/specs')).forEach(
+            file => {
+                if (file.indexOf('.json') !== -1) {
+                    const fixture = require(path.resolve(
+                        __dirname,
+                        './fixtures/specs/' + file
+                    ));
+                    coverageMap.merge(fixture.map)
+                }
+            }
+        );
+        const context = istanbulLibReport.createContext({
+            dir: './',
+            coverageMap
+        });
+        const tree = context.getTree('pkg');
+        const opts = {}
+        opts.file = `cobertura-coverage_merged-maps.xml`
+        const report = new CoberturaReport(opts);
+        tree.visit(report, context);
+        const output = fs.readFileSync(opts.file).toString()
+        const cobertura = xml.parse(output, {ignoreAttributes: false})
+        expect(cobertura.coverage.packages.class).to.be.undefined
+        expect(cobertura.coverage.packages.package).to.not.be.undefined
+    })
 });

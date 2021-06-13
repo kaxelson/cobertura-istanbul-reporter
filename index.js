@@ -6,8 +6,8 @@
  */
 
 const path = require('path');
-const { escape } = require('html-escaper');
-const { ReportBase } = require('istanbul-lib-report');
+const {escape} = require('html-escaper');
+const {ReportBase} = require('istanbul-lib-report');
 
 class CoberturaReport extends ReportBase {
     constructor(opts) {
@@ -17,17 +17,31 @@ class CoberturaReport extends ReportBase {
         this.xml = null;
         this.projectRoot = opts && opts.projectRoot || process.cwd();
         this.file = opts && opts.file || 'cobertura-coverage.xml';
+        this.root = null;
+        this.packageNodes = [];
+        this.classNodes = [];
     }
 
     onStart(root, context) {
         this.cw = context.writer.writeFile(this.file);
         this.xml = context.getXMLWriter(this.cw);
-        this.writeRootStats(root);
+        this.root = root
     }
 
     onEnd() {
+        this.writeRootStats(this.root)
+        this.packageNodes.forEach(pn => this.writePackage(pn))
+
         this.xml.closeAll();
         this.cw.close();
+    }
+
+    onSummary(node) {
+        this.packageNodes.push(node)
+    }
+
+    onDetail(node) {
+        this.classNodes.push(node)
     }
 
     writeRootStats(node) {
@@ -53,7 +67,7 @@ class CoberturaReport extends ReportBase {
         this.xml.openTag('packages');
     }
 
-    onSummary(node) {
+    writePackage(node) {
         const metrics = node.getCoverageSummary(true);
         if (!metrics) {
             return;
@@ -64,14 +78,16 @@ class CoberturaReport extends ReportBase {
             'branch-rate': metrics.branches.pct / 100.0
         });
         this.xml.openTag('classes');
-    }
 
-    onSummaryEnd(node) {
+        const classNodes = this.classNodes.filter(it => it.getParent() === node)
+
+        classNodes.forEach(cn => this.writeClass(cn))
+
         this.xml.closeTag('classes');
         this.xml.closeTag('package');
     }
 
-    onDetail(node) {
+    writeClass(node) {
         const fileCoverage = node.getFileCoverage();
         const metrics = node.getCoverageSummary();
         const branchByLine = fileCoverage.getBranchCoverageByLine();
@@ -85,7 +101,7 @@ class CoberturaReport extends ReportBase {
 
         this.xml.openTag('methods');
         const fnMap = fileCoverage.fnMap;
-        Object.entries(fnMap).forEach(([k, { name, decl }]) => {
+        Object.entries(fnMap).forEach(([k, {name, decl}]) => {
             const hits = fileCoverage.f[k];
             this.xml.openTag('method', {
                 name: escape(name),
