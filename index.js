@@ -184,6 +184,9 @@ function greatestCommonPath(nodes) {
 
     while (true) {
         const pathNodes = pathArrays.map(p => p[i])
+        if (pathNodes.some(pn => pn === undefined)) {
+            break
+        }
         if (pathNodes.every(pn => pn === pathNodes[0])) {
             commonPath += pathNodes[0] + path.sep
             i++

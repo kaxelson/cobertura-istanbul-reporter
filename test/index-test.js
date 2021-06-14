@@ -44,14 +44,14 @@ describe('TextReport', () => {
 
     it('merged-maps', function () {
         const coverageMap = istanbulLibCoverage.createCoverageMap({})
-        fs.readdirSync(path.resolve(__dirname, './fixtures/specs')).forEach(
+        fs.readdirSync(path.resolve(__dirname, './fixtures/maps')).forEach(
             file => {
                 if (file.indexOf('.json') !== -1) {
-                    const fixture = require(path.resolve(
+                    const map = require(path.resolve(
                         __dirname,
-                        './fixtures/specs/' + file
+                        './fixtures/maps/' + file
                     ));
-                    coverageMap.merge(fixture.map)
+                    coverageMap.merge(map)
                 }
             }
         );
@@ -62,7 +62,7 @@ describe('TextReport', () => {
         const tree = context.getTree('pkg');
         const opts = {
             file: `cobertura-coverage_merged-maps.xml`,
-            projectRoot: '/'
+            projectRoot: '/home/ubuntu/workspace/m-publish_DS-Common-Test_develop'
         }
         const report = new CoberturaReport(opts);
         tree.visit(report, context);
