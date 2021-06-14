@@ -1,6 +1,6 @@
 {
   "name": "cobertura-istanbul-reporter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "reporter for use with istanbul that generates a cobertura coverage report.  this is needed because of https://github.com/istanbuljs/istanbuljs/pull/571",
   "author": "Knute Axelson <kaxelson@gmail.com>",
   "license": "BSD-3-Clause",

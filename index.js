@@ -15,7 +15,7 @@ class CoberturaReport extends ReportBase {
 
         this.cw = null;
         this.xml = null;
-        this.projectRoot = opts && opts.projectRoot || process.cwd();
+        this.projectRoot = path.normalize(opts && opts.projectRoot || process.cwd());
         this.file = opts && opts.file || 'cobertura-coverage.xml';
         this.root = null;
         this.packageNodes = [];
@@ -72,14 +72,21 @@ class CoberturaReport extends ReportBase {
         if (!metrics) {
             return;
         }
+
+        const classNodes = this.classNodes.filter(it => it.getParent() === node)
+        if (!classNodes || classNodes.length === 0) {
+            return
+        }
+
+        const commonPath = greatestCommonPath(classNodes)
+
         this.xml.openTag('package', {
-            name: escape(asJavaPackage(node)),
+            name: escape(asJavaPackage(path.relative(this.projectRoot, commonPath))),
             'line-rate': metrics.lines.pct / 100.0,
             'branch-rate': metrics.branches.pct / 100.0
         });
         this.xml.openTag('classes');
 
-        const classNodes = this.classNodes.filter(it => it.getParent() === node)
 
         classNodes.forEach(cn => this.writeClass(cn))
 
@@ -92,9 +99,10 @@ class CoberturaReport extends ReportBase {
         const metrics = node.getCoverageSummary();
         const branchByLine = fileCoverage.getBranchCoverageByLine();
 
+        const filename = path.normalize(fileCoverage.path)
         this.xml.openTag('class', {
-            name: escape(asClassName(node)),
-            filename: path.relative(this.projectRoot, fileCoverage.path),
+            name: escape(asClassName(path.basename(filename))),
+            filename: path.relative(this.projectRoot, filename),
             'line-rate': metrics.lines.pct / 100.0,
             'branch-rate': metrics.branches.pct / 100.0
         });
@@ -147,16 +155,44 @@ class CoberturaReport extends ReportBase {
     }
 }
 
-function asJavaPackage(node) {
-    return node
-        .getRelativeName()
+function asJavaPackage(name) {
+    return name
         .replace(/\//g, '.')
         .replace(/\\/g, '.')
         .replace(/\.$/, '');
 }
 
-function asClassName(node) {
-    return node.getRelativeName().replace(/.*[\\/]/, '');
+function asClassName(name) {
+    return name.replace(/.*[\\/]/, '');
+}
+
+function greatestCommonPath(nodes) {
+    if (!nodes || nodes.length === 0) {
+        return ''
+    }
+
+    const paths = nodes.map(cn => path.normalize(path.dirname(cn.getFileCoverage().path)))
+
+    if (paths.length === 1) {
+        return paths[0]
+    }
+
+    const pathArrays = paths.map(p => p.split(path.sep))
+
+    let i = 0
+    let commonPath = ''
+
+    while (true) {
+        const pathNodes = pathArrays.map(p => p[i])
+        if (pathNodes.every(pn => pn === pathNodes[0])) {
+            commonPath += pathNodes[0] + path.sep
+            i++
+        } else {
+            break
+        }
+    }
+
+    return commonPath
 }
 
 module.exports = CoberturaReport;

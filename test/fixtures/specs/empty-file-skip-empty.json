@@ -1,7 +1,8 @@
 {
     "title": "empty file - skip empty",
     "opts": {
-        "skipEmpty": true
+        "skipEmpty": true,
+        "projectRoot": "/dev/git/istanbuljs/packages/istanbul-reports"
     },
     "textReportExpected": "----------|---------|----------|---------|---------|-------------------\nFile      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s \n----------|---------|----------|---------|---------|-------------------\n----------|---------|----------|---------|---------|-------------------\n",
     "htmlSpaFiles": ["empty.js.html", "index.html"],

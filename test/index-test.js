@@ -60,8 +60,10 @@ describe('TextReport', () => {
             coverageMap
         });
         const tree = context.getTree('pkg');
-        const opts = {}
-        opts.file = `cobertura-coverage_merged-maps.xml`
+        const opts = {
+            file: `cobertura-coverage_merged-maps.xml`,
+            projectRoot: '/'
+        }
         const report = new CoberturaReport(opts);
         tree.visit(report, context);
         const output = fs.readFileSync(opts.file).toString()
